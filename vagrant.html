@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Vagrant & VirtualBox</title>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/night.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+        <section>
+            <h2>Using Vagrant & VirtualBox</h2>
+            <br/><br/>
+            <p>
+                <table style="font-size: 65%">
+                <tr><td colspan="2">Rob Daniels</td></tr>
+                <tr><td colspan="2">http://www.danielscorporation.com</td></tr>
+                    <tr><td>https://github.com/rdaniels</td></tr>
+                    <tr><td>@rdaniels61</td></tr>
+                </table>
+            </p>
+            <aside class="notes">
+                set browser zoom to 150%<br/>
+                IT Director at Daniels Corporation<br/>
+                Family owned business specializing in Retail / Distribution Arts & Craft Supplies & Tile.<br/>
+                We sell to JoAnn and Michaels, and have a thriving B to C<br/>
+                I lead a small dev team focused on E-Commerce, SAP, and anything else tech that our companies need.<br/>
+                Developing Websites on & off since 1998, ColdFusion, .Net. <br/>
+                We discovered Ruby about 1 year ago & have been moving our web code to it.<br/>
+                While venturing into Ruby I discovered Vagrant, which is what I'd like to talk about today
+            </aside>
+        </section>
+        <section>
+            <section>
+                <h2>Virtual Machine</h2>
+                <ul>
+                    <li>A software implementation of hardware</li>
+                    <li>Independent, Isolated</li>
+                    <li><em>Host</em>: The OS/machine running the virtualization software.</li>
+                    <li><em>Guest (VM)</em>: An instance running <strong>in</strong> the virtualization software.</li>
+                    <li>Examples:
+                        <ul>
+                            <li>VirtualBox, VMWare, Xen, KVM</li>
+                            <li>AWS, Rackspace Cloud, Heroku, etc</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <aside class='notes'>
+                    <p>Vagrant uses VirtualBox by default, but can also use VMWare and AWS.</p>
+                </aside>
+
+
+            </section>
+            <section>
+                <h2>Vagrant</h2>
+                <p style="text-align: left">Vagrant is free and open-source software for creating and configuring virtual development environments.
+                    It can be considered a wrapper around VirtualBox and configuration management software such as Chef, Salt and Puppet.
+                </p>
+                <br/>
+                <small>Source: Wikipedia</small>
+                <aside class="notes">
+                    Uses an image of the server, then runs a script that sets up everything for you.
+                    <br/><br/>
+                    <!--◾ Setup private IP making it Isolated<br/>
+                    ◾ Uniform / consistant between developers<br/>
+                    ◾ Reproducible/Repeatable<br/>
+                    ◾ Shareable<br/>
+                    ◾ Mimic Production<br/>-->
+
+                </aside>
+            </section>
+            <section>
+                <h2>Why Use Vagrant?</h2>
+                <p>&nbsp;</p>
+                <p>Match Dev & Production Environment</p>
+                <p>Share Dev Setup with other Programmers</p>
+                <p>OK to Break the Server</p>
+                <p>Running Ruby on Windows</p>
+                <aside class="notes">
+                    the advantages <br/>
+                    solution for "Well it works on my computer"<br/>
+                    experimented with GUI, apt-get stuff, messed up config files, broke RVM<br/>
+                    just delete & start again, like version control for server<br/>
+                    We have to be windows, hw support for windows users, .net dev for SAP. I've gotten
+                    used to Windows, productive. Gems don't work, performance issues.
+                </aside>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>BIOS Setup</h2>
+                <p>Enable Virtualization in BIOS</p>
+                <p><img src="bios.png"></p>
+
+            </section>
+            <section>
+                <h2>Software Install</h2>
+                <p>GitBash: https://openhatch.org/missions/windows-setup/</p>
+                <p>Console2: http://sourceforge.net/projects/console/</p>
+                <p>VirtualBox: https://www.virtualbox.org/wiki/Downloads</p>
+                <p>Vagrant: http://downloads.vagrantup.com/</p>
+                <aside class="notes">
+                    show settings in console<br/>
+                    show hotkeys
+                </aside>
+            </section>
+            <section>
+                <h2>Base Box Creation</h2>
+                <p>http://vagrantbox.es/ <em> &nbsp; available vagrant boxes</em></p>
+                <!--http://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box -->
+                <pre><code class='bash'>
+    vagrant box add precise64 http://files.vagrantup.com/precise64.box
+    vagrant init
+                </code></pre>
+                <aside class="notes">
+                    takes a long time to download first box (1 hr.)
+                </aside>
+            </section>
+            <section>
+                <h2>VagrantFile</h2>
+                <pre><code class='bash'>
+    VAGRANTFILE_API_VERSION = "2"
+
+    Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+        config.vm.hostname = "my-project"
+        config.vm.box = "precise64"
+        config.vm.network :forwarded_port, guest: 80, host: 4567
+        config.vm.network :forwarded_port, guest: 3000, host: 3000
+    end
+                </code></pre>
+                <aside class="notes">
+                    automatically add /vagrant shared folder between windows host and ubuntu guest
+                </aside>
+            </section>
+            <section>
+                <h2>Vagrant Commands</h2>
+                <pre><code class='bash'>
+    vagrant up
+    vagrant ssh
+
+    vagrant package
+    vagrant box add precise64_with_rvm package.box
+
+    vagrant box list
+    vagrant box remove precise64_final
+    vagrant halt
+    vagrant destory --force
+                </code></pre>
+            </section>
+            <aside class="notes">
+                show ubuntu server notes
+            </aside>
+        </section>
+        <section>
+            <h2>Additional Reading</h2>
+            <p>Deploying Rails &nbsp; <em>&copy;2012 Burns & Copeland</em></p>
+            <aside class="notes">
+                some code examples are dated<br/>
+                also talks about puppet, capistrano, RVM, touches on Unicorn & nGinx
+            </aside>
+        </section>
+        <section>
+            <h2>Questions?</h2>
+        </section>
+        <section>
+            <h2>Thank You!</h2>
+            <br/><br/>
+            <p>
+            <table style="font-size: 65%">
+                <tr><td colspan="2">Rob Daniels</td></tr>
+                <tr><td colspan="2">http://www.danielscorporation.com</td></tr>
+                <tr><td>https://github.com/rdaniels</td></tr>
+                <tr><td>@rdaniels61</td></tr>
+            </table>
+            </p>
+        </section>
+    </div>
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+<script>
+
+    // Full list of configuration options available here:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+            { src: 'lib/js/classList.js', condition: function () {
+                return !document.body.classList;
+            } },
+            { src: 'plugin/markdown/marked.js', condition: function () {
+                return !!document.querySelector('[data-markdown]');
+            } },
+            { src: 'plugin/markdown/markdown.js', condition: function () {
+                return !!document.querySelector('[data-markdown]');
+            } },
+            { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                hljs.initHighlightingOnLoad();
+            } },
+            { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                return !!document.body.classList;
+            } },
+            { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                return !!document.body.classList;
+            } }
+        ]
+    });
+
+</script>
+
+</body>
+</html>
